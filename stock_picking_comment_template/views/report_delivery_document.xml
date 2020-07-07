@@ -8,7 +8,7 @@
                 <span t-raw="o.get_comment_template('before_lines', o.partner_id.id).text"/>
             </p>
         </xpath>
-        <xpath expr="(//p)[position()=last()]" position="after">
+        <xpath expr="//div[@name='signature']" position="after">
             <p t-if="o.get_comment_template('after_lines', o.partner_id.id)">
                 <span t-raw="o.get_comment_template('after_lines', o.partner_id.id).text"/>
             </p>
