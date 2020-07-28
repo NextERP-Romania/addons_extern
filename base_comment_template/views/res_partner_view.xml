@@ -10,7 +10,7 @@
                         mode="tree"
                         name="comment_template_ids"
                         nolabel="1"
-                        widget="one2many_list"
+                        widget="one2many"
                         height="300"
                     />
                 </page>

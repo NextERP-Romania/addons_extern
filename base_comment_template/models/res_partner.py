@@ -12,5 +12,4 @@ class ResPartner(models.Model):
         "partner_id",
         string="Comment templates",
         company_dependent=True,
-        help="If exists templates here, this will be chosen instead of general ones. As a result, you can give some other comments to one partner"
     )

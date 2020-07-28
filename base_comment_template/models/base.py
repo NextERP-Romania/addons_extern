@@ -8,13 +8,18 @@ from odoo.tools import safe_eval
 class Base(models.AbstractModel):
     _inherit = "base"
 
-    def get_comment_template(self, position=False, partner_id=False):
+    def get_comment_template(self, position=False, company_id=False, partner_id=False):
         self.ensure_one()
         template = False
+        if not company_id:
+            company_id = self.env.user.company_id.id
         default_dom = [
             ("model", "=", self._name),
             ("position", "=", position),
             ("default", "=", True),
+            "|",
+            ("company_id", "=", company_id),
+            ("company_id", "=", False),
         ]
         templates = self.env["base.comment.template"].search(default_dom)
         if partner_id:
@@ -22,6 +27,9 @@ class Base(models.AbstractModel):
                 ("model", "=", self._name),
                 ("position", "=", position),
                 ("partner_id", "=", partner_id),
+                "|",
+                ("company_id", "=", company_id),
+                ("company_id", "=", False),
             ]
             part_templates = self.env["base.comment.template"].search(partner_dom)
             lang = self.env["res.partner"].browse(partner_id).lang
@@ -32,6 +40,12 @@ class Base(models.AbstractModel):
                 if self in self.search(safe_eval(templ.domain or "[]")):
                     template = templ
                     break
+# original for v13 in v14 like down
+#         if not template:
+#             return False
+#         return self.env["mail.template"]._render_template(
+#             template.text, self._name, self._ids, post_process=True
+#         )
         if not template:
-            return False
-        return template
+            return ''
+        return next(iter(self.env["mail.template"]._render_template(template.text, self._name, self._ids, post_process=True).values()))

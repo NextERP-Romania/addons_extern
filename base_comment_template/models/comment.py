@@ -21,7 +21,7 @@ class BaseCommentTemplate(models.Model):
         help="Position on document",
     )
 
-    text = fields.Html(string="Comment", translate=True, required=True,)
+    text = fields.Html(string="Comment", translate=True, required=True, sanitize=False)
 
     company_id = fields.Many2one(
         "res.company",
@@ -61,6 +61,7 @@ class BaseCommentTemplate(models.Model):
                     lambda t: t.default
                     and t.model_id == temp.model_id
                     and t.domain == temp.domain
+                    and t.position == temp.position
                     and t.id != temp.id
                 )
                 if prev_default:

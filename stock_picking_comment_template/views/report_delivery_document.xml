@@ -4,13 +4,17 @@
     <template id="report_delivery_document_comments"
               inherit_id="stock.report_delivery_document">
         <xpath expr="//table[hasclass('table-sm')]" position="before">
-            <p t-if="o.get_comment_template('before_lines', o.partner_id.id)">
-                <span t-raw="o.get_comment_template('before_lines', o.partner_id.id).text"/>
+            <p t-if="o.get_comment_template('before_lines', o.company_id.id, o.partner_id and o.partner_id.id or False)">
+                <span t-raw="o.get_comment_template('before_lines', o.company_id.id, o.partner_id and o.partner_id.id or False)"/>
             </p>
         </xpath>
-        <xpath expr="//div[@name='signature']" position="after">
+<!--        <xpath expr="//div[@name='signature']" position="after">
             <p t-if="o.get_comment_template('after_lines', o.partner_id.id)">
                 <span t-raw="o.get_comment_template('after_lines', o.partner_id.id).text"/>
+-->
+        <xpath expr="//div[@class='page']" position="inside">
+            <p t-if="o.get_comment_template('after_lines', o.company_id.id, o.partner_id and o.partner_id.id or False)">
+                <span t-raw="o.get_comment_template('after_lines', o.company_id.id, o.partner_id and o.partner_id.id or False)"/>
             </p>
         </xpath>
     </template>

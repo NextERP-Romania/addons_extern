@@ -14,6 +14,7 @@
         "views/base_comment_template_view.xml",
         "views/report_picking.xml",
         "views/report_delivery_document.xml",
+        "security/ir.model.access.csv",
     ],
     "installable": True,
 }
