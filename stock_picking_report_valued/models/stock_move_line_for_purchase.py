@@ -13,20 +13,20 @@ class StockMoveLine(models.Model):
     _inherit = "stock.move.line"
 
     purchase_line = fields.Many2one(related="move_id.purchase_line_id",  string="Related purchase line")
-    purchase_currency_id = fields.Many2one(related="purchase_line.currency_id",  string="Purchase Currency")
     purchase_tax_id = fields.Many2many(related="purchase_line.taxes_id",  string="Purchase Tax")
     purchase_price_unit = fields.Float(related="purchase_line.price_unit",  string="Purchase price unit")
     purchase_tax_description = fields.Char(
         compute="_compute_purchase_order_line_fields",
         string="Purchase Tax Description", compute_sudo=True,  # See explanation for sudo in compute method
     )
-    purchase_price_subtotal = fields.Monetary(
-        compute="_compute_purchase_order_line_fields",
+    purchase_price_subtotal = fields.Monetary( compute="_compute_purchase_order_line_fields",
         string="Purchase Price subtotal", compute_sudo=True,)
-    purchase_price_tax = fields.Float(
-        compute="_compute_purchase_order_line_fields", string="Purchase Taxes", compute_sudo=True)
-    purchase_price_total = fields.Monetary(
-        compute="_compute_purchase_order_line_fields", string="Purchase Total", compute_sudo=True)
+    purchase_price_tax = fields.Float( compute="_compute_purchase_order_line_fields", string="Purchase Taxes", compute_sudo=True)
+    purchase_price_total = fields.Monetary(  compute="_compute_purchase_order_line_fields", string="Purchase Total", compute_sudo=True)
+
+#    purchase_currency_id = fields.Many2one(related="purchase_line.currency_id",  string="Purchase Currency")
+#    is not good because the total does not have a currency, so currency_id must be function
+    currency_id = fields.Many2one(   compute="_compute_purchase_order_line_fields", readonly=True, string="Sale/Purchase Currency", help="if exist purchase_line" )
 
     def _compute_purchase_order_line_fields(self):
         """This is computed with sudo for avoiding problems if you don't have
@@ -35,6 +35,7 @@ class StockMoveLine(models.Model):
         """
         for line in self:
             purchase_line = line.purchase_line
+            currency_id = purchase_line.currency_id if purchase_line else line.sale_line.currency_id
             price_unit = (
                 purchase_line.price_subtotal / purchase_line.product_uom_qty
                 if purchase_line.product_uom_qty
@@ -42,7 +43,7 @@ class StockMoveLine(models.Model):
             )
             taxes = line.purchase_tax_id.compute_all(
                 price_unit=price_unit,
-                currency=line.currency_id,
+                currency=currency_id,
                 quantity=line.qty_done or line.product_qty,
                 product=line.product_id,
                 partner=purchase_line.order_id.partner_id,
@@ -59,6 +60,7 @@ class StockMoveLine(models.Model):
                     "purchase_price_subtotal": taxes["total_excluded"],
                     "purchase_price_tax": price_tax,
                     "purchase_price_total": taxes["total_included"],
+                    "currency_id":currency_id.id,
                 }
             )
     

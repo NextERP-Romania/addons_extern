@@ -23,12 +23,12 @@ class StockMoveLine(models.Model):
         for line in self:
             margin = 0
             sale_with_margin_price_total = 0
-            if 'purchase_price_unit' in  self.fields and 'purchase_line' in  self.fields:
+            if 'purchase_price_unit' in  self._fields and 'purchase_line' in  self._fields:
                 # means that the stock_picking report is installed
                 super()._compute_purchase_order_line_fields() # the before behavior 
                 margin = (line.list_price - line.purchase_price_unit)/100
                 taxes = self.product_id.taxes_id.compute_all(
-                    price_unit=line.price_unit,
+                    price_unit=line.purchase_price_unit,
                    # currency=line.currency_id,  line.purchase_currency_id
                     quantity=line.qty_done or line.product_qty,
                     product=line.product_id,
@@ -38,7 +38,7 @@ class StockMoveLine(models.Model):
             line.update(
                 {
                     "margin": margin,
-                    "purchase_price_total": sale_with_margin_price_total,
+                    "sale_with_margin_price_total": sale_with_margin_price_total,
                 }
             )
     

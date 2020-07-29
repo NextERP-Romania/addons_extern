@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record model="ir.ui.view" id="view_picking_with_sale_purchse_form">
+        <field name="name">view_picking_with_sale_purchse_form</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <field name="origin" position="after">
+                <field name="sale_id" readonly="1"/>
+                <field name="purchase_id" />
+            </field>
+        </field>
+    </record>
+
+</odoo>

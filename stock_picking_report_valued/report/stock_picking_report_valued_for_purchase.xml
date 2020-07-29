@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-<!--  just for sale: "and o.sale_id"  -->
-    <template id="valued_report_picking" inherit_id="stock.report_delivery_document">
+<!--  just for purchase: "and o.purchase_id"  -->
+    <template id="valued_purchase_report_picking" inherit_id="stock.report_delivery_document">
     <!--  table for o.state=='done'  meaning that has serial numbers and packaging 
     lines are stock_move_lines     ( the not done tabels has lines as stock_moves)
     -->
        <xpath expr="//table[@name='stock_move_line_table']/thead/tr" position="inside">
-             <t t-if="o.valued and o.move_line_ids and o.sale_id">   
+             <t t-if="o.valued and o.move_line_ids and o.purchase_id">   
                 <th class="text-right"><strong>Unit Price</strong></th>
-                <th class="text-right" groups="product.group_discount_per_so_line">
-                    <strong>Discount</strong>
-                </th>
                 <th class="text-right"><strong>Subtotal</strong></th>
                 <th class="text-right"><strong>Taxes</strong></th>
              </t>
          </xpath>
 <!-- another table with taxes that are other fields from stock_picking as sum of stock_move_line s -->
         <xpath expr="//table[@name='stock_move_line_table']" position="after">
-            <t t-if="o.valued and o.sale_id and o.move_line_ids and o.state=='done'">
+            <t t-if="o.valued and o.purchase_id and o.move_line_ids and o.state=='done'">
                 <table class="table table-sm mt32">
                     <thead>
                         <tr>
@@ -30,8 +27,8 @@
                     <tbody>
                         <tr>
                             <td class="text-right">
-                                <span t-field="o.amount_untaxed"/>
-                             </td>
+                                <span t-esc="o.amount_untaxed"/>  <!-- t-field here is giving a error  -->
+                            </td>
                             <td class="text-right">
                                 <span t-field="o.amount_tax"/>
                             </td>
@@ -53,28 +50,22 @@
     </template>
 
 <!-- modify the stock_move_line templates for with lots and without -->
-	<template id="stock_report_delivery_price_values" inherit_id="stock.stock_report_delivery_has_serial_move_line">
+	<template id="stock_report_purchase_delivery_price_values" inherit_id="stock.stock_report_delivery_has_serial_move_line">
 		<xpath expr="//td[last()]" position="inside">
-         <t t-if="o.valued and o.sale_id and o.move_line_ids">
-                <td class="text-right"><span t-field="move_line.sale_price_unit" /></td>
-                <td class="text-right" groups="product.group_discount_per_so_line">
-                    <span t-field="move_line.sale_discount" />
-                </td>
-                <td class="text-right"><span t-field="move_line.sale_price_subtotal" /></td>
-                <td class="text-right"><span t-field="move_line.sale_price_tax"/></td><!-- move_line.sale_tax_description -->
+         <t t-if="o.valued and o.purchase_id and o.move_line_ids">
+                <td class="text-right"><span t-field="move_line.purchase_price_unit" /></td>
+                <td class="text-right"><span t-field="move_line.purchase_price_subtotal" /></td>
+                <td class="text-right"><span t-field="move_line.purchase_price_tax"/></td>
             </t>			
 		</xpath>	
 	</template>
 
-	<template id="stock_report_delivery_agg_price_values" inherit_id="stock.stock_report_delivery_aggregated_move_lines">
+	<template id="stock_report_purchase_delivery_agg_price_values" inherit_id="stock.stock_report_delivery_aggregated_move_lines">
 		<xpath expr="//td[last()]" position="after">
-         <t t-if="o.valued and o.sale_id and o.move_line_ids">
-               <td class="text-right"> <span t-esc="aggregated_lines[line]['sale_price_unit']"/> </td>
-                <td class="text-right" groups="product.group_discount_per_so_line">
-                    <span t-esc="aggregated_lines[line]['sale_discount']" />
-                </td>
-                <td class="text-right"> <span t-esc="aggregated_lines[line]['sale_price_subtotal']"/> </td>
-                 <td class="text-right"><span t-esc="aggregated_lines[line]['sale_price_tax']"/></td>
+         <t t-if="o.valued and o.purchase_id and o.move_line_ids">
+               <td class="text-right"> <span t-esc="aggregated_lines[line]['purchase_price_unit']"/> </td>
+                <td class="text-right"> <span t-esc="aggregated_lines[line]['purchase_price_subtotal']"/> </td>
+                 <td class="text-right"><span t-esc="aggregated_lines[line]['purchase_price_tax']"/></td>
              </t>			
 		</xpath>	
 	</template>
