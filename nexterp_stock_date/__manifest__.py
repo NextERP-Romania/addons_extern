@@ -4,7 +4,7 @@
 
 {
     "name": "Stock Processing Date",
-    "version": "14.0.1.0.1",
+    "version": "15.0.1.0.1",
     "depends": ["sale_stock", "purchase_stock"],
     "description": """Stock Processing Date, Remove Update Qty from Product View""",
     "data": [

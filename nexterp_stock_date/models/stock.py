@@ -12,11 +12,11 @@ class StockPicking(models.Model):
 
     date = fields.Datetime('Processing Date')
 
-    @api.depends('move_lines.state', 'move_lines.date', 'move_type')
-    def _compute_scheduled_date(self):
-        super()._compute_scheduled_date()
+    def _set_scheduled_date(self):
+        super()._set_scheduled_date()
         for picking in self:
             picking.date = picking.scheduled_date
+
 
     def _action_done(self):
         """Update date_done from date field """
@@ -34,8 +34,6 @@ class StockMove(models.Model):
         new_date = self.date
         if self.picking_id:
             new_date = self.picking_id.date
-        elif self.inventory_id:
-            new_date = self.inventory_id.accounting_date
         elif "raw_material_production_id" in self._fields:
             if self.raw_material_production_id:
                 new_date = self.raw_material_production_id.date_planned_start
@@ -44,9 +42,21 @@ class StockMove(models.Model):
         return new_date
 
     def _action_done(self, cancel_backorder=False):
+        #save move.date to restore after super() call
+        is_inventory = self and  self[0].is_inventory or False
+        move_inv_date = {}
+        if is_inventory:
+            move_inv_date = dict([(move.id, move.date) for move in self])
+
+        #save dictionary in context to be used in stock.valuation.layer create
+        self = self.with_context(move_inventory_date=move_inv_date)
+
         moves_todo = super()._action_done(cancel_backorder=cancel_backorder)
         for move in moves_todo:
-            move.date = move.get_move_date()
+            if move.is_inventory:
+                move.date = move_inv_date[move.id]
+            else:
+                move.date = move.get_move_date()
         return moves_todo
 
     def _trigger_assign(self):
@@ -109,18 +119,16 @@ class StockMoveLine(models.Model):
         return res
 
 
-# todo check to update in_date with moves dates
-# class StockQuant(models.Model):
-#     _inherit = "stock.quant"
-#
-#     @api.depends("company_id", "location_id", "owner_id", "product_id", "quantity")
-#     def _compute_value(self):
-#         quants_with_loc = self.filtered(lambda q: q.location_id)
-#         for quant in quants_with_loc:
-#             super(
-#                 StockQuant, quant.with_context(location_id=quant.location_id.id)
-#             )._compute_value()
-#         return super(StockQuant, self - quants_with_loc)._compute_value()
+class StockQuant(models.Model):
+    _inherit = "stock.quant"
+
+    def _get_inventory_move_values(self, qty, location_id, 
+                                    location_dest_id, out=False):
+        res = super()._get_inventory_move_values(
+            qty, location_id, location_dest_id, out=out)
+
+        res.update(date=fields.Date.to_string(self.inventory_date))
+        return res
 
 
 class StockValuationLayer(models.Model):
@@ -137,8 +145,14 @@ class StockValuationLayer(models.Model):
         for values in vals_list:
             val_date = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             if values.get("stock_move_id"):
+
                 move = self.env["stock.move"].browse(values["stock_move_id"])
-                val_date = move.get_move_date()
+                if move.is_inventory and 'move_inventory_date' in self._context:
+                    val_date = self._context['move_inventory_date'].get(
+                        move.id, move.get_move_date())
+                else:
+                    val_date = move.get_move_date()
+                    
             values.update({
                 'create_uid': self._uid,
                 "create_date": val_date,
