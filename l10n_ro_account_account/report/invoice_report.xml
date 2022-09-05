@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template
+        id="inherit_report_invoice_document"
+        inherit_id="account.report_invoice_document"
+    >
+        <xpath expr="//table[@name='invoice_line_table']//tbody//t[@name='account_invoice_line_accountable']//td[2]" position="replace">
+            <td class="text-right">
+                <t t-if="o.move_type == 'out_refund'">
+                    <span t-if="line.quantity &gt; 0 and line.price_unit &gt; 0">
+                        <span>-</span><span t-field="line.quantity"/>
+                    </span>
+                    <span t-if="line.quantity &lt;= 0  and line.price_unit &gt; 0">
+                        <span t-esc="-1 * line.quantity"  t-options='{"widget": "float", "decimal_precision": "Product Unit of Measure"}'/>
+                    </span>
+                    <span t-if="line.quantity &lt;= 0 and line.price_unit &lt; 0">
+                        <span t-field="line.quantity" />
+                    </span>
+                    <span t-if="line.quantity &gt;= 0 and line.price_unit &lt; 0">
+                        <span t-field="line.quantity" />
+                    </span>
+                </t>
+                <t t-if="o.move_type != 'out_refund'">
+                    <span t-field="line.quantity"/>
+                </t>
+                <span t-field="line.product_uom_id" groups="uom.group_uom"/>
+            </td>
+        </xpath>
+
+
+        <xpath expr="//table[@name='invoice_line_table']//tbody//t[@name='account_invoice_line_accountable']//td[3]" position="replace">
+            <td class="text-right">
+                <t t-if="o.move_type == 'out_refund'">
+                    <span t-if="line.price_unit &gt; 0 and line.quantity &gt; 0">
+                        <span  class="text-nowrap" t-field="line.price_unit"/>
+                    </span>
+                    <span t-if="line.quantity &lt;= 0 and line.price_unit &gt; 0">
+                        <span class="text-nowrap" t-field="line.price_unit"/>
+                    </span>
+                    <span t-if="line.quantity &lt;= 0 and line.price_unit &lt; 0">
+                        <span class="text-nowrap" t-esc="-1*line.price_unit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                    </span>
+                    <span t-if="line.quantity &gt;= 0 and line.price_unit &lt; 0">
+                        <span class="text-nowrap" t-esc="-1*line.price_unit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                    </span>
+                </t>
+                <t t-if="o.move_type != 'out_refund'">
+                    <span class="text-nowrap" t-field="line.price_unit"/>
+                </t>
+            </td>
+        </xpath>
+
+
+        <xpath expr="//table[@name='invoice_line_table']//tbody//t[@name='account_invoice_line_accountable']//td[6]" position="replace">
+            <td class="text-right o_price_total">
+                <span t-if="o.move_type == 'out_refund' and line.price_subtotal &gt; 0" groups="account.group_show_line_subtotals_tax_excluded">
+                  <span class="text-nowrap" t-esc="-1 * line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                </span>
+                <span t-if="o.move_type == 'out_refund' and line.price_total &gt; 0" groups="account.group_show_line_subtotals_tax_included">
+                    <span class="text-nowrap" t-esc="-1 * line.price_total" groups="account.group_show_line_subtotals_tax_included" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                </span>
+
+                <span t-if="o.move_type == 'out_refund' and line.price_subtotal &lt;= 0" groups="account.group_show_line_subtotals_tax_excluded">
+                    <span class="text-nowrap" t-esc="-1 * line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                </span>
+                <span t-if="o.move_type == 'out_refund' and line.price_total &lt;= 0" groups="account.group_show_line_subtotals_tax_included">
+                    <span class="text-nowrap" t-esc="-1 * line.price_total" groups="account.group_show_line_subtotals_tax_included" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                </span>
+
+                <span t-if="o.move_type != 'out_refund'">
+                    <span class="text-nowrap" t-field="line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                </span>
+                <span t-if="o.move_type != 'out_refund'">
+                    <span class="text-nowrap" t-field="line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+                </span>
+            </td>
+        </xpath>
+
+        <xpath expr="//div[@id='total']//table//tr[1]" position="replace">
+            <tr class="border-black o_subtotal" style="">
+                <td><strong>Subtotal</strong></td>
+                <td class="text-right">
+                    <span t-if="o.move_type == 'out_refund' and o.amount_untaxed &gt; 0">
+                        -
+                    </span>
+                    <span t-field="o.amount_untaxed"/>
+                </td>
+            </tr>
+        </xpath>
+
+        <xpath expr="//div[@id='total']//table//t[1]//tr[1]" position="replace">
+            <tr style="">
+                <t t-if="len(o.line_ids.filtered(lambda line: line.tax_line_id)) in [0, 1] and float_compare(o.amount_untaxed, amount_by_group[2], precision_rounding=o.currency_id.rounding) == 0">
+                    <td>
+                      <span class="text-nowrap" t-esc="amount_by_group[0]"/></td>
+                    <td class="text-right o_price_total">
+                        <span t-if="o.move_type == 'out_refund' and amount_by_group[1] &gt; 0">
+                            -
+                        </span>
+                        <span class="text-nowrap" t-esc="amount_by_group[3]"/>
+                    </td>
+                </t>
+                <t t-else="">
+                    <td>
+                        <span t-esc="amount_by_group[0]"/>
+                        <span class="text-nowrap"> on
+                            <span t-if="o.move_type == 'out_refund' and amount_by_group[2] &gt; 0">
+                                -
+                                 <t t-esc="amount_by_group[4]"/>
+                            </span>
+
+                            <span t-if="o.move_type == 'out_refund' and amount_by_group[2] &lt; 0">
+                                <t t-esc="amount_by_group[4][1:]"/>
+                            </span>
+
+                            <span t-if="o.move_type != 'out_refund'">
+                                <t t-esc="amount_by_group[4]"/>
+                            </span>
+                        </span>
+                    </td>
+                    <td class="text-right o_price_total">
+                        <span t-if="o.move_type == 'out_refund' and amount_by_group[1] &gt; 0">
+                            -
+                          <span class="text-nowrap" t-esc="amount_by_group[3]"/>
+                        </span>
+                        <span t-if="o.move_type == 'out_refund' and amount_by_group[1] &lt; 0">
+                            <t t-esc="amount_by_group[3][1:]"/>
+                        </span>
+                        <span t-if="o.move_type == 'out_refund' and amount_by_group[1]==0">
+                          <span class="text-nowrap" t-esc="amount_by_group[3]"/>
+                        </span>
+                        <span t-if="o.move_type != 'out_refund'">
+                          <span class="text-nowrap" t-esc="amount_by_group[3]"/>
+                        </span>
+                    </td>
+                </t>
+            </tr>
+        </xpath>
+        <xpath expr="//div[@id='total']//table//tr[2]" position="replace">
+            <tr class="border-black o_total">
+                <td><strong>Total</strong></td>
+                <td class="text-right">
+                    <span t-if="o.move_type == 'out_refund' and o.amount_total &gt; 0">
+                        -
+                    </span>
+                    <span class="text-nowrap" t-field="o.amount_total"/>
+                </td>
+            </tr>
+        </xpath>
+
+    </template>
+
+</odoo>
