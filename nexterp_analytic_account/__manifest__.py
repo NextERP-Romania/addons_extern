@@ -3,7 +3,7 @@
 
 {
     "name": "Nexterp - Analytic Account",
-    "version": "14.0.1.0.0",
+    "version": "14.0.1.0.1",
     "category": "Localisation",
     "author": "NextERP Romania SRL",
     "website": "https://nexterp.ro",

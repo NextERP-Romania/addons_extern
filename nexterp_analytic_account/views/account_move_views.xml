@@ -38,6 +38,7 @@
                     <field name="name" optional="show" attrs="{'readonly':[('parent_state','=','posted')]}"/>
                     <field name="analytic_account_id" groups="account.group_account_readonly" optional="show"/>
                     <field name="analytic_tag_ids" widget="many2many_tags" groups="analytic.group_analytic_tags" optional="hide"/>
+                    <field name="project_id" optional="show"/>
                     <field name="tax_ids" widget="many2many_tags" width="0.5" optional="show" attrs="{'readonly':[('parent_state','=','posted')]}"/>
                     <field name="debit" sum="Total Debit" attrs="{'readonly':[('parent_state','=','posted')]}"/>
                     <field name="credit" sum="Total Credit" attrs="{'readonly':[('parent_state','=','posted')]}"/>
@@ -47,6 +48,8 @@
                     <field name="currency_id" readonly="1" groups="base.group_multi_currency" optional="hide" string="Original Currency"/>
                     <field name="reconcile_model_id" invisible="1"/>
                     <field name="reconciled" invisible="1"/>
+                    <field name="amount_residual" optional="show"/>
+                    <field name="amount_residual_currency" optional="show"/>
                     <field name="date_maturity" optional="hide" attrs="{'readonly':[('parent_state','=','posted')]}"/>
                     <field name="company_currency_id" invisible="1"/>
                     <field name="parent_state" invisible="1"/>
