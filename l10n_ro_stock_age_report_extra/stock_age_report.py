@@ -162,7 +162,6 @@ class SVLAgeReport(models.TransientModel):
                                 remaining_value -= item['value']
         svl_date_to = self.date_ref
         # create report lines
-        print('\n\ndict1', dict1)
         for product_dict in dict1:
             query = '''INSERT INTO l10n_ro_svl_age_report_line
             (report_id, name, date, date_in, product_id, account_id, quantity, value)
