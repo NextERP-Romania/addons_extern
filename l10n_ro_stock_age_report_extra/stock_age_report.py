@@ -162,6 +162,7 @@ class SVLAgeReport(models.TransientModel):
                                 remaining_value -= item['value']
         svl_date_to = self.date_ref
         # create report lines
+        print('\n\ndict1', dict1)
         for product_dict in dict1:
             query = '''INSERT INTO l10n_ro_svl_age_report_line
             (report_id, name, date, date_in, product_id, account_id, quantity, value)
@@ -214,7 +215,7 @@ class SVLAgeReport(models.TransientModel):
                                 query += ','
                     else:
                         query += f"({self.id}, '{age_list['name']}', '{_to_str(age_list['date'])}', '{date_in}', {dict1[product_dict]['product_id']}," \
-                           f" {dict1[product_dict]['account_id']}, {age_list['quantity']}, { 0 if age_list['quantity'] == 0 else age_list['value']})"
+                           f" {dict1[product_dict]['account_id']}, {0}, { 0 })"
                 else:
                     if lista:
                         for idx, product in enumerate(lista):
@@ -224,7 +225,7 @@ class SVLAgeReport(models.TransientModel):
                                 query += ','
                     else:
                         query += f"({self.id}, '{age_list['name']}', '{_to_str(age_list['date'])}', '{date_in}', {dict1[product_dict]['product_id']}," \
-                            f" NULL, {age_list['quantity']}, { 0 if age_list['quantity'] == 0 else age_list['value']})"
+                            f" NULL, {0}, { 0 })"
                 if index == NUMBER_INTERVALS-1:
                     query += ';'
                 else:
