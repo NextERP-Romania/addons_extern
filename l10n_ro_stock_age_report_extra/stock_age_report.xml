@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+     <record id="view_age_report_line_tree_inherit" model="ir.ui.view">
+        <field name="name">svl.age.report.line.tree.inherit</field>
+        <field name="model">l10n.ro.svl.age.report.line</field>
+        <field name="inherit_id" ref="l10n_ro_stock_age_report.view_age_report_line_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='date']" position="after">
+                <field name="date_in"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
