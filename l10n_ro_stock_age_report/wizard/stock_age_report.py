@@ -135,13 +135,13 @@ class SVLAgeReport(models.TransientModel):
             select product_id as product_id, sum(quantity) as quantity, sum(value) as value
                 from stock_valuation_layer
                 where product_id = %s and create_date::date<='%s' and ( l10n_ro_location_dest_id in %s or l10n_ro_location_id in %s)
-                group by product_id''' % (products.id, svl_date_to, tuple(locations), tuple(locations)))
+                group by product_id''' % (products.id, svl_date_to, tuple(locations+[0]), tuple(locations+[0])))
         else:
             self.env.cr.execute('''
             select product_id as product_id,sum(quantity) as quantity, sum(value) as value
                 from stock_valuation_layer
                 where product_id in %s and create_date::date<='%s' and ( l10n_ro_location_dest_id in %s or l10n_ro_location_id in %s)
-                group by product_id''' % (tuple(products.ids), svl_date_to, tuple(locations), tuple(locations)))
+                group by product_id''' % (tuple(products.ids), svl_date_to, tuple(locations+[0]), tuple(locations+[0])))
         product_dicts = self.env.cr.dictfetchall()
         product_dicts = dict((item['product_id'], item) for item in product_dicts)
 
